@@ -199,7 +199,7 @@ def create_player():
                         status=400,
                         mimetype='application/json')
 
-    player_model = PlayerService.create_player(**req_data.as_dict())
+    player_model = PlayerService.create_player(**req_data.as_dict(), team_id=team_id)
 
     error = get_compt_error_response(player_model)
 

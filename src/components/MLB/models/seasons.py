@@ -6,6 +6,7 @@ from uuid import uuid4
 class SeasonModel(mlbdb.Model):
     __tablename__ = 'seasons'
     season_id = mlbdb.Column(UUID(as_uuid=True), primary_key=True)
+    sport_id = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('sports.sport_id'))
     season_start_date = mlbdb.Column(mlbdb.String, unique=False, nullable=False)
     season_end_date = mlbdb.Column(mlbdb.String, unique=False, nullable=False)
     champion_id = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('teams.team_id'))
@@ -14,6 +15,7 @@ class SeasonModel(mlbdb.Model):
     def as_dict(self):
         return {
             'season_id': self.season_id,
+            'sport_id': self.sport_id,
             'season_start_date': self.season_start_date,
             'season_end_date': self.season_end_date,
             'champion_id': self.champion_id,
@@ -41,33 +43,28 @@ class SeasonModel(mlbdb.Model):
             return season_model if season_model else None
 
     @staticmethod
-    def update_season(season_id, season_start_date=None, season_end_date=None, champion_id=None, runnerup_id=None,
+    def update_season(season_model, sport_id=None, season_start_date=None, season_end_date=None, champion_id=None, runnerup_id=None,
                       return_as_model=False):
-        season_model = SeasonModel.get_season_by_id(season_id=season_id, return_as_model=True)
+        if sport_id is not None:
+            season_model.sport_id = sport_id
 
-        if season_model:
-            if season_start_date is not None:
-                season_model.season_start_date = season_start_date
+        if season_start_date is not None:
+            season_model.season_start_date = season_start_date
 
-            if season_end_date is not None:
-                season_model.season_end_date = season_end_date
+        if season_end_date is not None:
+            season_model.season_end_date = season_end_date
 
-            if champion_id is not None:
-                season_model.champion_id = champion_id
+        if champion_id is not None:
+            season_model.champion_id = champion_id
 
-            if runnerup_id is not None:
-                season_model.runnerup_id = runnerup_id
+        if runnerup_id is not None:
+            season_model.runnerup_id = runnerup_id
 
-            if season_id is not None:
-                season_model.season_id = season_id
-
-            season_model.commit()
-            return season_model if return_as_model else season_model.as_dict()
-
-        return None
+        season_model.commit()
+        return season_model if return_as_model else season_model.as_dict()
 
     @staticmethod
-    def create_season(season_start_date, season_end_date, champion_id, runnerup_id):
+    def create_season(sport_id, season_start_date, season_end_date, champion_id, runnerup_id):
         season_models = SeasonModel.get_all_seasons(season_start_date=season_start_date,
                                                     season_end_date=season_end_date)
 
@@ -75,7 +72,7 @@ class SeasonModel(mlbdb.Model):
             return [season_model.as_dict() for season_model in season_models]
 
         season_id = str(uuid4())
-        season_model = SeasonModel(season_id=season_id, season_start_date=season_start_date,
+        season_model = SeasonModel(sport_id=sport_id, season_id=season_id, season_start_date=season_start_date,
                                    season_end_date=season_end_date, champion_id=champion_id,
                                    runnerup_id=runnerup_id)
 

@@ -13,29 +13,38 @@ def create_database(app):
 
 
 mlbdb = create_database(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://{}:{}@{}/{}".format(Settings.SECRETS['MLB_DATABASE_USER'],
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://{}:{}@{}/{}".format(Settings.SECRETS['MLB_DATABASE_USERNAME'],
                                                                           Settings.SECRETS['MLB_DATABASE_PASSWORD'],
                                                                           Settings.SECRETS['MLB_DATABASE_HOST'],
                                                                           Settings.SECRETS['MLB_DATABASE_DB'])
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "pool_recycle": 1800 }
-mlbdb.database.create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
+mlbdb.create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
                              app.config['SQLALCHEMY_ENGINE_OPTIONS'])
 
 
 ncaambdb = create_database(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://{}:{}@{}/{}".format(Settings.SECRETS['NCAAMB_DATABASE_USER'],
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://{}:{}@{}/{}".format(Settings.SECRETS['NCAAMB_DATABASE_USERNAME'],
                                                                           Settings.SECRETS['NCAAMB_DATABASE_PASSWORD'],
                                                                           Settings.SECRETS['NCAAMB_DATABASE_HOST'],
                                                                           Settings.SECRETS['NCAAMB_DATABASE_DB'])
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "pool_recycle": 1800 }
-ncaambdb.database.create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
+ncaambdb.create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
                              app.config['SQLALCHEMY_ENGINE_OPTIONS'])
 
 nfldb = create_database(app)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://{}:{}@{}/{}".format(Settings.SECRETS['NFL_DATABASE_USER'],
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://{}:{}@{}/{}".format(Settings.SECRETS['NFL_DATABASE_USERNAME'],
                                                                           Settings.SECRETS['NFL_DATABASE_PASSWORD'],
                                                                           Settings.SECRETS['NFL_DATABASE_HOST'],
                                                                           Settings.SECRETS['NFL_DATABASE_DB'])
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "pool_recycle": 1800 }
-nfldb.database.create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
+nfldb.create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
+                             app.config['SQLALCHEMY_ENGINE_OPTIONS'])
+
+sportdb = create_database(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://{}:{}@{}/{}".format(Settings.SECRETS['SPORT_DATABASE_USERNAME'],
+                                                                          Settings.SECRETS['SPORT_DATABASE_PASSWORD'],
+                                                                          Settings.SECRETS['SPORT_DATABASE_HOST'],
+                                                                          Settings.SECRETS['SPORT_DATABASE_DB'])
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "pool_recycle": 1800 }
+sportdb.create_engine(app.config['SQLALCHEMY_DATABASE_URI'],
                              app.config['SQLALCHEMY_ENGINE_OPTIONS'])

@@ -44,7 +44,7 @@ class TeamModel(mlbdb.Model):
 
     @staticmethod
     def update_team(team_id, team_name=None, team_city=None, conference_id=None, division_id=None, season_id=None,
-                      return_as_model=False):
+                    return_as_model=False):
         team_model = TeamModel.get_team_by_id(team_id=team_id, return_as_model=True)
 
         if team_model:
