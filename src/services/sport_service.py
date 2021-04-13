@@ -1,10 +1,18 @@
 from components.Sport.models.sport import SportModel
 
+from components.Sport.serializers.CreateSportRequestData import CreateSportRequestData
+from components.Sport.serializers.UpdateSportRequestData import UpdateSportRequestData
+
 from utils.exceptions import Error
 
 
-def create_sport(req_data):
-    name = req_data.__getattribute__('name') if req_data.__dict__.get('name') else None
+def create_sport(request_body):
+    try:
+        req_data = CreateSportRequestData(data=request_body)
+        name = req_data.name
+
+    except (ValueError, AttributeError, KeyError) as e:
+        return Error.INVALID_VALUE
 
     sport_model = SportModel.create_sport(name)
 
@@ -29,7 +37,15 @@ def get_sport_by_id(sport_id=None, return_as_model=False):
     return sport_model if sport_model is not None else Error.RESOURCE_NOT_FOUND
 
 
-def update_sport(sport_id=None, name=None):
+def update_sport(sport_id=None, request_body=None):
+    try:
+        req_data = UpdateSportRequestData(data=request_body)
+
+    except:
+        return Error.INVALID_VALUE
+
+    name = request_body.get('name', None)
+
     if sport_id is None or name is None:
         return Error.INVALID_VALUE
 

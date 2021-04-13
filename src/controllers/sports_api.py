@@ -6,16 +6,10 @@ from services import mlb_service as MLBService
 from services import nfl_service as NFLService
 from services import ncaamb_service as NCAAMBService
 
-from components.Sport.serializers.CreateSportRequestData import CreateSportRequestData
 from components.Sport.serializers.GetAllSportsRequestData import GetAllSportsRequestData
-from components.Sport.serializers.UpdateSportRequestData import UpdateSportRequestData
-
-from components.MLB.serializers.CreateSeasonRequestData import CreateSeasonRequestData
 from components.MLB.serializers.GetAllSeasonsRequestData import GetAllSeasonsRequestData
-
 from components.MLB.serializers.GetAllTeamsRequestData import GetAllTeamsRequestData
-
-from components.MLB.serializers.GetAllPlayersRequestData import GetAllPlayerRequestData
+from components.MLB.serializers.GetAllPlayersRequestData import GetAllPlayersRequestData
 
 
 from utils.create_app import app, logger
@@ -37,43 +31,31 @@ def create_sport():
                         status=400,
                         mimetype='application/json')
 
-    try:
-        logger.info(f'Attempted to serialize the request body for creating a sport.')
-        req_data = CreateSportRequestData(data=request.get_data().decode())
-
-    except (ValueError, KeyError, AttributeError, TypeError) as e:
-        logger.error(f'Failed to process the request to create a sport. Failed to supply a valid request body, '
-                     f'request_body: {request.get_data().decode()}')
-        return Response(response=Exception.invalid_value(property_name='req_data',
-                                                         value=str(e)),
-                        status=400,
-                        mimetype='application/json')
-
     logger.info(f'Successfully validated that the request body is valid for creating a sport. Attempting to create '
-                f'the sport. req_data: {req_data.as_dict()}')
-    sport_model = SportService.create_sport(req_data)
+                f'the sport. request_body: {request.get_data().decode()}')
+    sport_model = SportService.create_sport(request.get_data().decode())
 
     if sport_model == Error.INVALID_VALUE:
         logger.error(f'Attempted to create a sport, but received an INVALID_VALUE error from the Sports Service. '
-                     f'req_data: {req_data.as_dict()}')
-        return Response(response=Exception.invalid_value(property_name='req_data',
-                                                         value=req_data),
+                     f'request_body: {request.get_data().decode()}')
+        return Response(response=Exception.invalid_value(property_name='request_body',
+                                                         value=request.get_data().decode()),
                         status=400,
                         mimetype='application/json')
 
     elif sport_model == Error.ALREADY_EXISTS:
         logger.error(f'Attempted to create a sport, but received an ALREADY_EXISTS error from the Sports Service. '
-                     f'req_data: {req_data.as_dict()}')
-        return Response(response=Exception.conflict(property_name='req_data',
-                                                    value=req_data),
+                     f'request_body: {request.get_data().decode()}')
+        return Response(response=Exception.conflict(property_name='request_body',
+                                                    value=request.get_data().decode()),
                         status=409,
                         mimetype='application/json')
 
     elif sport_model == Error.INTERNAL_SERVICE_ERROR:
         logger.error(f'Attempted to create a sport, but received an INTERNAL_SERVICE_ERROR error from the '
-                     f'Sports Service. req_data: {req_data.as_dict()}')
-        return Response(response=Exception.internal_service_error(property_name='req_data',
-                                                                  value=req_data),
+                     f'Sports Service. request_body: {request.get_data().decode()}')
+        return Response(response=Exception.internal_service_error(property_name='request_body',
+                                                                  value=request.get_data().decode()),
                         status=500,
                         mimetype='application/json')
 
@@ -146,7 +128,7 @@ def get_sport_by_id(sport_id):
         logger.error(f'Received an INVALID_VALUE from the call to the service, when retrieving a '
                      f'sport model. sport_id: {sport_id}')
         return Response(response=Exception.invalid_value(property_name='req_data',
-                                                         value=sport_models),
+                                                         value=sport_model),
                         status=400,
                         mimetype='application/json')
 
@@ -176,29 +158,17 @@ def update_sport(sport_id):
                         status=400,
                         mimetype='application/json')
 
-    try:
-        logger.info(f'Attempted to serialize the request body for updating a sport.')
-        req_data = UpdateSportRequestData(data=request.get_data().decode())
-
-    except (ValueError, KeyError, AttributeError, TypeError) as e:
-        logger.error(f'Failed to process the request to update a sport. Failed to supply a valid request body, '
-                     f'request_body: {request.get_data()}')
-        return Response(response=Exception.invalid_value(property_name='req_data',
-                                                         value=str(e)),
-                        status=400,
-                        mimetype='application/json')
-
     logger.info(f'Successfully validated the request body for updating a sport. sport_id: {sport_id}, '
-                f'req_data: {req_data.as_dict()}')
+                f'request_body: {request.get_data().decode()}')
 
     logger.info(f'Pasing the request onto the service to update the sport model. sport_id: {sport_id}, '
-                f'req_data: {req_data.as_dict()}')
-    sport_model = SportService.update_sport(sport_id=sport_id, name=req_data.name)
+                f'request_body: {request.get_data().decode()}')
+    sport_model = SportService.update_sport(sport_id=sport_id, request_body=request.get_data().decode())
 
     if sport_model == Error.INVALID_VALUE:
         logger.error(f'Received an INVALID_VALUE from the call to the service, when updating a '
-                     f'sport model. sport_id: {sport_id}, name: {req_data.name}')
-        return Response(response=Exception.invalid_value(property_name='req_data',
+                     f'sport model. sport_id: {sport_id}, request_body: {request.get_data().decode()}')
+        return Response(response=Exception.invalid_value(property_name='request_body',
                                                          value=sport_model),
                         status=400,
                         mimetype='application/json')
@@ -1169,11 +1139,169 @@ def get_player_by_id(sport_id, season_id, team_id, player_id):
 
 @app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}', methods=['PUT'])
 def update_player(sport_id, season_id, team_id, player_id):
-    pass
+    logger.info(f'Received the request to update a player.')
+
+    logger.info(f'Attempting to retrieve a sport by id. sport_id: {sport_id}')
+    sport_model = SportService.get_sport_by_id(sport_id=sport_id)
+
+    if sport_model == Error.INVALID_VALUE:
+        logger.error(f'Failed to pass in a valid sport_id when attempting to get a sport by id. sport_id: {sport_id}')
+        return Response(response=Exception.invalid_value(property_name='sport_id',
+                                                         value=sport_id),
+                        status=400,
+                        mimetype='application/json')
+
+    elif sport_model == Error.RESOURCE_NOT_FOUND:
+        logger.error(f'Failed to locate a sport model with the specified sport_id. sport_id: {sport_id}')
+        return Response(response=Exception.resource_not_found(property_name='sport_id',
+                                                              value=sport_id),
+                        status=404,
+                        mimetype='application/json')
+
+    logger.info(f'Successfully validated that the sport_id does conform with an existing sport model. '
+                f'Attempting to route the request to the correct service. sport_model: {sport_model}')
+    if sport_model.get('name') == MLB_CONSTANT:
+        Service = MLBService
+
+    elif sport_model.get('name') == NFL_CONSTANT:
+        Service = NFLService
+
+    elif sport_model.get('name') == NCAAMB_CONSTANT:
+        Service = NCAAMBService
+
+    # elif sport_model.get('name') == NBA_CONSTANT:
+    #     Service = NBAService
+
+    else:
+        logger.error(f'Failed to determine which service the sport model belongs to. sport_model: {sport_model}')
+        return Response(response=Exception.failed_dependency(),
+                        status=424,
+                        mimetype='application/json')
+
+    logger.info(f'Successfully determined the appropriate service for the sport model. sport_model: {sport_model}')
+
+    season_model = Service.get_season_by_id(season_id=season_id)
+
+    if season_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='season_id',
+                                                              value=season_id),
+                        status=404,
+                        mimetype='application/json')
+
+    team_model = Service.get_team_by_id(team_id=team_id)
+
+    if team_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='team_id',
+                                                              value=team_id),
+                        status=404,
+                        mimetype='application/json')
+
+    player_model = Service.get_player_by_id(player_id=player_id)
+
+    if player_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='player_id',
+                                                              value=player_id),
+                        status=404,
+                        mimetype='application/json')
+
+    player_model = Service.update_player(request_body=request.get_data().decode(), player_id=player_id)
+
+    if player_model == Error.INVALID_VALUE:
+        return Response(response=Exception.invalid_value(property_name='request_body',
+                                                         value=request.get_data().decode()),
+                        status=400,
+                        mimetype='application/json')
+
+    elif player_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='player_id',
+                                                              value=player_id),
+                        status=404,
+                        mimetype='application/json')
+
+    return Response(response=json.dumps(player_model),
+                    status=202,
+                    mimetype='application/json')
+
 
 @app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}', methods=['DELETE'])
 def delete_player(sport_id, season_id, team_id, player_id):
-    pass
+    logger.info(f'Received the request to delete a player.')
+
+    logger.info(f'Attempting to retrieve a sport by id. sport_id: {sport_id}')
+    sport_model = SportService.get_sport_by_id(sport_id=sport_id)
+
+    if sport_model == Error.INVALID_VALUE:
+        logger.error(f'Failed to pass in a valid sport_id when attempting to get a sport by id. sport_id: {sport_id}')
+        return Response(response=Exception.invalid_value(property_name='sport_id',
+                                                         value=sport_id),
+                        status=400,
+                        mimetype='application/json')
+
+    elif sport_model == Error.RESOURCE_NOT_FOUND:
+        logger.error(f'Failed to locate a sport model with the specified sport_id. sport_id: {sport_id}')
+        return Response(response=Exception.resource_not_found(property_name='sport_id',
+                                                              value=sport_id),
+                        status=404,
+                        mimetype='application/json')
+
+    logger.info(f'Successfully validated that the sport_id does conform with an existing sport model. '
+                f'Attempting to route the request to the correct service. sport_model: {sport_model}')
+    if sport_model.get('name') == MLB_CONSTANT:
+        Service = MLBService
+
+    elif sport_model.get('name') == NFL_CONSTANT:
+        Service = NFLService
+
+    elif sport_model.get('name') == NCAAMB_CONSTANT:
+        Service = NCAAMBService
+
+    # elif sport_model.get('name') == NBA_CONSTANT:
+    #     Service = NBAService
+
+    else:
+        logger.error(f'Failed to determine which service the sport model belongs to. sport_model: {sport_model}')
+        return Response(response=Exception.failed_dependency(),
+                        status=424,
+                        mimetype='application/json')
+
+    logger.info(f'Successfully determined the appropriate service for the sport model. sport_model: {sport_model}')
+
+    season_model = Service.get_season_by_id(season_id=season_id)
+
+    if season_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='season_id',
+                                                              value=season_id),
+                        status=404,
+                        mimetype='application/json')
+
+    team_model = Service.get_team_by_id(team_id=team_id)
+
+    if team_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='team_id',
+                                                              value=team_id),
+                        status=404,
+                        mimetype='application/json')
+
+    player_model = Service.get_player_by_id(player_id=player_id)
+
+    if player_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='player_id',
+                                                              value=player_id),
+                        status=404,
+                        mimetype='application/json')
+
+    player_model = Service.delete_player(player_id=player_id)
+
+    if player_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='player_id',
+                                                              value=player_id),
+                        status=404,
+                        mimetype='application/json')
+
+    return Response(response=json.dumps(player_model),
+                    status=204,
+                    mimetype='application/json')
+
 
 @app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/injury_reports', methods=['POST'])
 def create_injury_report(sport_id, season_id, team_id, player_id):

@@ -28,3 +28,25 @@ def get_all_players(**filters):
     return player_models
 
 
+def update_player(player_id, team_id, player_name, bats, throws, player_position, starter):
+    player_model = PlayerModel.update_player(player_id=player_id,
+                                             team_id=team_id,
+                                             player_name=player_name,
+                                             bats=bats,
+                                             throws=throws,
+                                             player_position=player_position,
+                                             starter=starter)
+
+    return player_model
+
+
+def delete_player(player_id):
+    player_model = PlayerModel.delete_player(player_id=player_id)
+
+    if player_model is None:
+        return Error.RESOURCE_NOT_FOUND
+
+    return player_model
+
+
+

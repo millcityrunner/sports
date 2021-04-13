@@ -16,6 +16,9 @@ from components.MLB.serializers.UpdateSeasonRequestData import UpdateSeasonReque
 from components.MLB.serializers.CreateTeamRequestData import CreateTeamRequestData
 from components.MLB.serializers.UpdateTeamRequestData import UpdateTeamRequestData
 
+from components.MLB.serializers.CreatePlayerRequestData import CreatePlayerRequestData
+from components.MLB.serializers.UpdatePlayerRequestData import UpdatePlayerRequestData
+
 
 def create_season(request_body, sport_id):
     if not request_body or request_body == '{}':
@@ -195,7 +198,7 @@ def create_player(request_body, team_id):
 
     try:
         logger.info(f'Attempted to serialize the request body for creating a player.')
-        req_data = CreateTeamRequestData(data=request_body)
+        req_data = CreatePlayerRequestData(data=request_body)
 
     except (ValueError, KeyError, AttributeError, TypeError) as e:
         logger.error(f'Failed to process the request to create a player. Failed to supply a valid request body, '
@@ -228,9 +231,47 @@ def get_all_players(**filters):
     return player_models
 
 
-def update_player():
-    pass
+def update_player(request_body, player_id):
+    if not request_body or request_body == '{}':
+        logger.error(f'Failed to process the request to update a team. Failed to supply a valid request body, '
+                     f'request_body: {request_body}')
+        return Error.INVALID_VALUE
+
+    try:
+        logger.info(f'Attempted to serialize the request body for updating a team.')
+        req_data = UpdatePlayerRequestData(data=request_body)
+
+    except (ValueError, KeyError, AttributeError, TypeError) as e:
+        logger.error(f'Failed to process the request to create a team. Failed to supply a valid request body, '
+                     f'error: {e}, request_body: {request_body}')
+        return Error.INVALID_VALUE
+
+    team_id = request_body.get('team_id', None)
+    player_name = request_body.get('player_name', None)
+    bats = request_body.get('bats', None)
+    throws = request_body.get('throws', None)
+    player_position = request_body.get('player_position', None)
+    starter = request_body.get('starter', None)
+
+    player_model = PlayerService.update_player(player_id=player_id,
+                                               team_id=team_id,
+                                               player_name=player_name,
+                                               bats=bats,
+                                               throws=throws,
+                                               player_position=player_position,
+                                               starter=starter)
+
+    if player_model == Error.RESOURCE_NOT_FOUND:
+        return Error.RESOURCE_NOT_FOUND
+
+    return player_model
 
 
-def delete_player():
-    pass
+def delete_player(player_id):
+    player_model = PlayerService.delete_player(player_id=player_id)
+
+    if player_model == Error.RESOURCE_NOT_FOUND:
+        return Error.RESOURCE_NOT_FOUND
+
+    return player_model
+

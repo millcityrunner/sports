@@ -45,7 +45,7 @@ class PlayerModel(mlbdb.Model):
             return player_model if player_model else None
 
     @staticmethod
-    def update_player(player_id, player_name=None, bats=None, throws=None, position=None, team_id=None, starter=None,
+    def update_player(player_id, player_name=None, bats=None, throws=None, player_position=None, team_id=None, starter=None,
                       return_as_model=False):
         player_model = PlayerModel.get_player_by_id(player_id=player_id, return_as_model=True)
 
@@ -59,8 +59,8 @@ class PlayerModel(mlbdb.Model):
             if throws is not None:
                 player_model.throws = throws
 
-            if position is not None:
-                player_model.position = position
+            if player_position is not None:
+                player_model.player_position = player_position
 
             if team_id is not None:
                 player_model.team_id = team_id
