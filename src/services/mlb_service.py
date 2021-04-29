@@ -19,6 +19,8 @@ from components.MLB.serializers.UpdateTeamRequestData import UpdateTeamRequestDa
 from components.MLB.serializers.CreatePlayerRequestData import CreatePlayerRequestData
 from components.MLB.serializers.UpdatePlayerRequestData import UpdatePlayerRequestData
 
+from components.MLB.serializers.CreateInjuryReportRequestData import CreateInjuryReportRequestData
+
 
 def create_season(request_body, sport_id):
     if not request_body or request_body == '{}':
@@ -275,3 +277,25 @@ def delete_player(player_id):
 
     return player_model
 
+
+def create_injury_report(request_body, team_id):
+    if not request_body or request_body == '{}':
+        logger.error(f'Failed to process the request to create an injury report. Failed to supply a valid request body, '
+                     f'request_body: {request_body}')
+        return Error.INVALID_VALUE
+
+    try:
+        logger.info(f'Attempted to serialize the request body for creating an injury report.')
+        req_data = CreateInjuryReportRequestData(data=request_body)
+
+    except (ValueError, KeyError, AttributeError, TypeError) as e:
+        logger.error(f'Failed to process the request to create an injury report. Failed to supply a valid request body, '
+                     f'request_body: {request_body}')
+        return Error.INVALID_VALUE
+
+    else:
+        injury_report_model = InjuryReportService.create_injury_report(players=req_data.players,
+                                                                       date=req_data.date,
+                                                                       team_id=team_id)
+
+    return injury_report_model

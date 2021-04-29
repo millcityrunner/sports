@@ -14,7 +14,7 @@ class GameModel(mlbdb.Model):
     winning_pitcher_id = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('players.player_id'), nullable=False)
     losing_pitcher_id = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('players.player_id'), nullable=False)
     weather_report_id = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('weather_reports.weather_report_id'), nullable=False)
-    expectation_id = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('expectations.expectation_id'), nullable=False)
+    game_expectation_id = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('game_expectations.game_expectation_id'), nullable=False)
     injury_reports_away_team = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('injury_reports.injury_report_id'), nullable=False)
     injury_reports_home_team = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('injury_reports.injury_report_id'), nullable=False)
     away_team_id = mlbdb.Column(UUID(as_uuid=True), mlbdb.ForeignKey('teams.team_id'), nullable=False)
@@ -35,7 +35,7 @@ class GameModel(mlbdb.Model):
             'winning_pitcher_id': self.winning_pitcher_id,
             'losing_pitcher_id': self.losing_pitcher_id,
             'weather_report_id': self.weather_report_id,
-            'expectation_id': self.expectation_id,
+            'game_expectation_id': self.game_expectation_id,
             'injury_reports_away_team': self.injury_reports_away_team,
             'injury_reports_home_team': self.injury_reports_home_team
         }
@@ -63,7 +63,7 @@ class GameModel(mlbdb.Model):
     @staticmethod
     def update_game(game_id, date=None, dome=None, away_team_id=None, home_team_id=None, winner_id=None,
                     loser_id=None, winner_score=None, loser_score=None, winning_pitcher_id=None,
-                    losing_pitcher_id=None, weather_report_id=None, expectation_id=None, injury_reports_away_team=None,
+                    losing_pitcher_id=None, weather_report_id=None, game_expectation_id=None, injury_reports_away_team=None,
                     injury_reports_home_team=None, return_as_model=False):
         game_model = GameModel.get_game_by_id(game_id=game_id, return_as_model=True)
 
@@ -101,8 +101,8 @@ class GameModel(mlbdb.Model):
             if weather_report_id is not None:
                 game_model.weather_report_id = weather_report_id
 
-            if expectation_id is not None:
-                game_model.expectation_id = expectation_id
+            if game_expectation_id is not None:
+                game_model.game_expectation_id = game_expectation_id
 
             if injury_reports_home_team is not None:
                 game_model.injury_reports_home_team = injury_reports_home_team
@@ -118,7 +118,7 @@ class GameModel(mlbdb.Model):
     @staticmethod
     def create_game(date, dome, away_team_id, home_team_id, winner_id,
                     loser_id, winner_score, loser_score, winning_pitcher_id,
-                    losing_pitcher_id, weather_report_id, expectation_id, injury_reports_away_team,
+                    losing_pitcher_id, weather_report_id, game_expectation_id, injury_reports_away_team,
                     injury_reports_home_team):
         game_models = GameModel.get_all_games(date=date,
                                               away_team_id=away_team_id,
@@ -139,7 +139,7 @@ class GameModel(mlbdb.Model):
                                loser_id=loser_id, winner_score=winner_score, loser_score=loser_score,
                                winning_pitcher_id=winning_pitcher_id,
                                losing_pitcher_id=losing_pitcher_id, weather_report_id=weather_report_id,
-                               expectation_id=expectation_id,
+                               game_expectation_id=game_expectation_id,
                                injury_reports_away_team=injury_reports_away_team,
                                injury_reports_home_team=injury_reports_home_team)
 

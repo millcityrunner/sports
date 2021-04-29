@@ -25,6 +25,7 @@ class Error(Enum):
     CONFLICT = auto()
     TOO_MANY_REQUESTS = auto()
     FAILED_DEPENDENCY = auto()
+    ALREADY_EXISTS = auto()
 
     #5xx
     INTERNAL_SERVICE_ERROR = auto()
@@ -91,6 +92,18 @@ class Exception:
         error = Exception.error_gen(error=Error.ACTION_NOT_PERMITTED.name,
                                     rel="Action not permitted",
                                     msg=f"The call to the API is not permitted for `{property_name}` with "
+                                        f"value `{value}`")
+
+        if msg is not None:
+            error['msg'] = msg
+
+        return json.dumps(error)
+
+    @staticmethod
+    def already_exists(property_name, value, msg=None):
+        error = Exception.error_gen(error=Error.ALREADY_EXISTS.name,
+                                    rel="Already Exists",
+                                    msg=f"There was a conflict attempting to process `{property_name}` with "
                                         f"value `{value}`")
 
         if msg is not None:

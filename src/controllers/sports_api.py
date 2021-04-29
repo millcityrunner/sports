@@ -33,7 +33,7 @@ def create_sport():
 
     logger.info(f'Successfully validated that the request body is valid for creating a sport. Attempting to create '
                 f'the sport. request_body: {request.get_data().decode()}')
-    sport_model = SportService.create_sport(request.get_data().decode())
+    sport_model = SportService.create_sport(request.get_json())
 
     if sport_model == Error.INVALID_VALUE:
         logger.error(f'Attempted to create a sport, but received an INVALID_VALUE error from the Sports Service. '
@@ -60,7 +60,7 @@ def create_sport():
                         mimetype='application/json')
 
     else:
-        logger.info(f'Successfully created a sport model. sport_model: {sport_model.as_dict()}')
+        logger.info(f'Successfully created a sport model. sport_model: {sport_model}')
         return Response(response=json.dumps(sport_model),
                         status=201,
                         mimetype='application/json')
@@ -118,7 +118,7 @@ def get_all_sports():
                         mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}')
+@app.route('/sports/<sport_id>')
 def get_sport_by_id(sport_id):
     logger.info(f'Received the request to get a sport. '
                 f'Passing the request onto the service. sport_id: {sport_id}')
@@ -130,6 +130,14 @@ def get_sport_by_id(sport_id):
         return Response(response=Exception.invalid_value(property_name='req_data',
                                                          value=sport_model),
                         status=400,
+                        mimetype='application/json')
+
+    elif sport_model == Error.RESOURCE_NOT_FOUND:
+        logger.error(f'Received a RESOURCE_NOT_FOUND from the call to the service, when retrieving a '
+                     f'sport model. sport_id: {sport_id}')
+        return Response(response=Exception.resource_not_found(property_name='sport_id',
+                                                              value=sport_id),
+                        status=404,
                         mimetype='application/json')
 
     elif sport_model == Error.EMPTY_SET:
@@ -146,7 +154,7 @@ def get_sport_by_id(sport_id):
                         mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>', methods=['PUT'])
 def update_sport(sport_id):
     logger.info(f'Received the request to update a sport model. sport_id: {sport_id}')
 
@@ -187,7 +195,7 @@ def update_sport(sport_id):
                         mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>', methods=['DELETE'])
 def delete_sport(sport_id):
     logger.info(f'Received the request to delete a sport model. sport_id: {sport_id}')
 
@@ -217,7 +225,7 @@ def delete_sport(sport_id):
                         mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons', methods=["POST"])
+@app.route('/sports/<sport_id>/seasons', methods=["POST"])
 def create_season(sport_id):
     logger.info(f'Received the request to create a season.')
 
@@ -296,7 +304,7 @@ def create_season(sport_id):
                         mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons')
+@app.route('/sports/<sport_id>/seasons')
 def get_all_seasons(sport_id):
     logger.info(f'Received the request to get all seasons.')
 
@@ -375,7 +383,7 @@ def get_all_seasons(sport_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}')
+@app.route('/sports/<sport_id>/seasons/<season_id>')
 def get_season_by_id(sport_id, season_id):
     logger.info(f'Received the request to get a season by id.')
 
@@ -431,7 +439,7 @@ def get_season_by_id(sport_id, season_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>/seasons/<season_id>', methods=['PUT'])
 def update_season(sport_id, season_id):
     logger.info(f'Received the request to update a season.')
 
@@ -493,7 +501,7 @@ def update_season(sport_id, season_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>/seasons/<season_id>', methods=['DELETE'])
 def delete_season(sport_id, season_id):
     logger.info(f'Received the request to update a team.')
 
@@ -549,7 +557,7 @@ def delete_season(sport_id, season_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams', methods=["POST"])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams', methods=["POST"])
 def create_team(sport_id, season_id):
     logger.info(f'Received the request to create a team.')
 
@@ -613,7 +621,7 @@ def create_team(sport_id, season_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams')
 def get_all_teams(sport_id, season_id):
     logger.info(f'Received the request to get all teams.')
 
@@ -700,7 +708,7 @@ def get_all_teams(sport_id, season_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>')
 def get_team_by_id(sport_id, season_id, team_id):
     logger.info(f'Received the request to get a team by id.')
 
@@ -764,7 +772,7 @@ def get_team_by_id(sport_id, season_id, team_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>', methods=['PUT'])
 def update_team(sport_id, season_id, team_id):
     logger.info(f'Received the request to update a team.')
 
@@ -834,7 +842,7 @@ def update_team(sport_id, season_id, team_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>', methods=['DELETE'])
 def delete_team(sport_id, season_id, team_id):
     logger.info(f'Received the request to delete a team.')
 
@@ -898,7 +906,100 @@ def delete_team(sport_id, season_id, team_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players', methods=["POST"])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/injury_reports', methods=['POST'])
+def create_injury_report(sport_id, season_id, team_id, player_id):
+    logger.info(f'Received the request to create an injury report for a player.')
+
+    logger.info(f'Attempting to retrieve a sport by id. sport_id: {sport_id}')
+    sport_model = SportService.get_sport_by_id(sport_id=sport_id)
+
+    if sport_model == Error.INVALID_VALUE:
+        logger.error(f'Failed to pass in a valid sport_id when attempting to get a sport by id. sport_id: {sport_id}')
+        return Response(response=Exception.invalid_value(property_name='sport_id',
+                                                         value=sport_id),
+                        status=400,
+                        mimetype='application/json')
+
+    elif sport_model == Error.RESOURCE_NOT_FOUND:
+        logger.error(f'Failed to locate a sport model with the specified sport_id. sport_id: {sport_id}')
+        return Response(response=Exception.resource_not_found(property_name='sport_id',
+                                                              value=sport_id),
+                        status=404,
+                        mimetype='application/json')
+
+    logger.info(f'Successfully validated that the sport_id does conform with an existing sport model. '
+                f'Attempting to route the request to the correct service. sport_model: {sport_model}')
+    if sport_model.get('name') == MLB_CONSTANT:
+        Service = MLBService
+
+    elif sport_model.get('name') == NFL_CONSTANT:
+        Service = NFLService
+
+    elif sport_model.get('name') == NCAAMB_CONSTANT:
+        Service = NCAAMBService
+
+    # elif sport_model.get('name') == NBA_CONSTANT:
+    #     Service = NBAService
+
+    else:
+        logger.error(f'Failed to determine which service the sport model belongs to. sport_model: {sport_model}')
+        return Response(response=Exception.failed_dependency(),
+                        status=424,
+                        mimetype='application/json')
+
+    logger.info(f'Successfully determined the appropriate service for the sport model. sport_model: {sport_model}')
+
+    season_model = Service.get_season_by_id(season_id=season_id)
+
+    if season_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='season_id',
+                                                              value=season_id),
+                        status=404,
+                        mimetype='application/json')
+
+    team_model = Service.get_team_by_id(team_id=team_id)
+
+    if team_model == Error.RESOURCE_NOT_FOUND:
+        return Response(response=Exception.resource_not_found(property_name='team_id',
+                                                              value=team_id),
+                        status=404,
+                        mimetype='application/json')
+
+    injury_report_model = Service.create_injury_report(request_body=request.get_data().decode(), team_id=team_id)
+
+    if injury_report_model == Error.INVALID_VALUE:
+        return Response(response=Exception.invalid_value(property_name='request_body',
+                                                         value=request.get_data().decode()),
+                        status=400,
+                        mimetype='application/json')
+
+    return Response(response=json.dumps(injury_report_model),
+                    status=201,
+                    mimetype='application/json')
+
+
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/injury_reports')
+def get_all_injury_reports(sport_id, season_id, team_id, player_id):
+    pass
+
+
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/injury_reports/{injury_report_id}')
+def get_injury_report_by_id(sport_id, season_id, team_id, player_id, injury_report_id):
+    pass
+
+
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/injury_reports/{injury_report_id}', methods=['PUT'])
+def update_injury_report(sport_id, season_id, team_id, player_id, injury_report_id):
+    pass
+
+
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/injury_reports/{injury_report_id}',
+           methods=['DELETE'])
+def delete_injury_report(sport_id, season_id, team_id, player_id, injury_report_id):
+    pass
+
+
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players', methods=["POST"])
 def create_player(sport_id, season_id, team_id):
     logger.info(f'Received the request to create a player.')
 
@@ -970,7 +1071,7 @@ def create_player(sport_id, season_id, team_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players')
 def get_all_players(sport_id, season_id, team_id):
     logger.info(f'Received the request to create a player.')
 
@@ -1065,7 +1166,7 @@ def get_all_players(sport_id, season_id, team_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players/<player_id>')
 def get_player_by_id(sport_id, season_id, team_id, player_id):
     logger.info(f'Received the request to create a player.')
 
@@ -1137,7 +1238,7 @@ def get_player_by_id(sport_id, season_id, team_id, player_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players/<player_id>', methods=['PUT'])
 def update_player(sport_id, season_id, team_id, player_id):
     logger.info(f'Received the request to update a player.')
 
@@ -1223,7 +1324,7 @@ def update_player(sport_id, season_id, team_id, player_id):
                     mimetype='application/json')
 
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players/<player_id>', methods=['DELETE'])
 def delete_player(sport_id, season_id, team_id, player_id):
     logger.info(f'Received the request to delete a player.')
 
@@ -1302,124 +1403,103 @@ def delete_player(sport_id, season_id, team_id, player_id):
                     status=204,
                     mimetype='application/json')
 
-
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/injury_reports', methods=['POST'])
-def create_injury_report(sport_id, season_id, team_id, player_id):
-    pass
-
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/injury_reports')
-def get_all_injury_reports(sport_id, season_id, team_id, player_id):
-    pass
-
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/injury_reports/{injury_report_id}')
-def get_injury_report_by_id(sport_id, season_id, team_id, player_id, injury_report_id):
-    pass
-
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/injury_reports/{injury_report_id}', methods=['PUT'])
-def update_injury_report(sport_id, season_id, team_id, player_id, injury_report_id):
-    pass
-
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/injury_reports/{injury_report_id}', methods=['DELETE'])
-def delete_injury_report(sport_id, season_id, team_id, player_id, injury_report_id):
-    pass
-
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/expectations', methods=['POST'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players/<player_id>/expectations', methods=['POST'])
 def create_player_expectation(sport_id, season_id, team_id, player_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/expectations')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players/<player_id>/expectations')
 def get_all_player_expectations(sport_id, season_id, team_id, player_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/expectations/{expectation_id}')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players/<player_id>/expectations/<expectation_id>')
 def get_player_expectation_by_id(sport_id, season_id, team_id, player_id, expectation_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/expectations/{expectation_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players/<player_id>/expectations/<expectation_id>', methods=['PUT'])
 def update_player_expectation(sport_id, season_id, team_id, player_id, expectation_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/players/{player_id}/expectations/{expectation_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/players/<player_id>/expectations/<expectation_id>', methods=['DELETE'])
 def delete_player_expectation(sport_id, season_id, team_id, player_id, expectation_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules', methods=["POST"])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules', methods=["POST"])
 def create_schedule(sport_id, season_id, team_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules')
 def get_all_schedules(sport_id, season_id, team_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>')
 def get_schedule_by_id(sport_id, season_id, team_id, schedule_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>', methods=['PUT'])
 def update_schedule(sport_id, season_id, team_id, schedule_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>', methods=['DELETE'])
 def delete_schedule(sport_id, season_id, team_id, schedule_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games', methods=["POST"])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games', methods=["POST"])
 def create_game(sport_id, season_id, team_id, schedule_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games')
 def get_all_games(sport_id, season_id, team_id, schedule_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>')
 def get_game_by_id(sport_id, season_id, team_id, schedule_id, game_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>', methods=['PUT'])
 def update_game(sport_id, season_id, team_id, schedule_id, game_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>', methods=['DELETE'])
 def delete_game(sport_id, season_id, team_id, schedule_id, game_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/expectations', methods=["POST"])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/expectations', methods=["POST"])
 def create_game_expectation(sport_id, season_id, team_id, schedule_id, game_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/expectations')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/expectations')
 def get_all_game_expectations(sport_id, season_id, team_id, schedule_id, game_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/expectations/{expectation_id}')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/expectations/<expectation_id>')
 def get_game_expectation_by_id(sport_id, season_id, team_id, schedule_id, game_id, expectation_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/expectations/{expectation_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/expectations/<expectation_id>', methods=['PUT'])
 def update_game_expectation(sport_id, season_id, team_id, schedule_id, game_id, expectation_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/expectations/{expectation_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/expectations/<expectation_id>', methods=['DELETE'])
 def delete_game_expectation(sport_id, season_id, team_id, schedule_id, game_id, expectation_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/weather_reports', methods=["POST"])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/weather_reports', methods=["POST"])
 def create_weather_report(sport_id, season_id, team_id, schedule_id, game_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/weather_reports')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/weather_reports')
 def get_all_weather_reports(sport_id, season_id, team_id, schedule_id, game_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/weather_reports/{weather_report_id}')
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/weather_reports/<weather_report_id>')
 def get_weather_report_by_id(sport_id, season_id, team_id, schedule_id, game_id, weather_report_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/weather_reports/{weather_report_id}', methods=['PUT'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/weather_reports/<weather_report_id>', methods=['PUT'])
 def update_weather_report(sport_id, season_id, team_id, schedule_id, game_id, weather_report_id):
     pass
 
-@app.route('/sports/{sport_id}/seasons/{season_id}/teams/{team_id}/schedules/{schedule_id}/games/{game_id}/weather_reports/{weather_report_id}', methods=['DELETE'])
+@app.route('/sports/<sport_id>/seasons/<season_id>/teams/<team_id>/schedules/<schedule_id>/games/<game_id>/weather_reports/<weather_report_id>', methods=['DELETE'])
 def delete_weather_report(sport_id, season_id, team_id, schedule_id, game_id, weather_report_id):
     pass
 

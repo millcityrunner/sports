@@ -1,6 +1,6 @@
 from utils.database import sportdb
 from sqlalchemy.dialects.postgresql import UUID
-
+import uuid
 
 class SportModel(sportdb.Model):
     __tablename__ = 'sports'
@@ -8,8 +8,9 @@ class SportModel(sportdb.Model):
     name = sportdb.Column(sportdb.String, unique=True, nullable=False)
 
     def as_dict(self):
+        sport_id = str(self.sport_id)
         return {
-            'sport_id': self.sport_id,
+            'sport_id': sport_id,
             'name': self.name
         }
 
@@ -17,11 +18,13 @@ class SportModel(sportdb.Model):
     def create_sport(name):
         sport_model = SportModel.get_all_sports(name=name)
         if sport_model is not None:
-            return sport_model[0].as_dict()
+            return sport_model[0]
 
-        sport_model = SportModel(name=name)
-        sportdb.add(sport_model)
-        sportdb.commit()
+        sport_id = str(uuid.uuid4())
+        sport_model = SportModel(sport_id=sport_id,
+                                 name=name)
+        sportdb.session.add(sport_model)
+        sportdb.session.commit()
 
         return sport_model.as_dict()
 
@@ -43,7 +46,7 @@ class SportModel(sportdb.Model):
         else:
             return_as_model = False
 
-        sport_models = SportModel.query.filter_by(filters).all()
+        sport_models = SportModel.query.filter_by(**filters).all()
 
         if sport_models:
             return [sport_model for sport_model in sport_models] if return_as_model else [sport_model.as_dict() for sport_model in sport_models]

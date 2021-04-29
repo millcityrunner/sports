@@ -1,0 +1,79 @@
+
+-- sports database tables
+CREATE TABLE sports (
+    sport_id        UUID CONSTRAINT firstkey PRIMARY KEY,
+    name       varchar(40) NOT NULL
+);
+
+
+-- mlb database tables
+CREATE TABLE seasons (
+    season_id        		UUID CONSTRAINT firstkey PRIMARY KEY,
+	sport_id         		UUID,
+    season_start_date       varchar(40) NOT NULL,
+	season_end_date 		varchar(40) NULL,
+	champion_id 			UUID,
+	runnerup_id 			UUID
+);
+
+
+CREATE TABLE teams (
+);
+
+
+CREATE TABLE players (
+);
+
+
+CREATE TABLE games (
+);
+
+
+CREATE TABLE game_expectations (
+    game_expectation_id         UUID CONSTRAINT firstkey PRIMARY KEY,
+    away_team_id       			UUID,
+	home_team_id 	   			UUID,
+	winner_id		   			UUID,
+	loser_id		   			UUID,
+	winner_score       			INT,
+	loser_score		   			INT,
+	winning_pitcher_id 			UUID,
+	losing_pitcher_id  			UUID,
+	date			   			VARCHAR(255),
+	CONSTRAINT fk_away_team_id FOREIGN KEY(away_team_id) REFERENCES teams(team_id),
+	CONSTRAINT fk_home_team_id FOREIGN KEY(home_team_id) REFERENCES teams(team_id),
+	CONSTRAINT fk_winner_id FOREIGN KEY(winner_id) REFERENCES teams(team_id),
+	CONSTRAINT fk_loser_id FOREIGN KEY(loser_id) REFERENCES teams(team_id),
+	CONSTRAINT fk_winning_pitcher_id FOREIGN KEY(winning_pitcher_id) REFERENCES players(player_id),
+	CONSTRAINT fk_losing_pitcher_id FOREIGN KEY(losing_pitcher_id) REFERENCES players(player_id),
+);
+
+CREATE TABLE injury_reports (
+    sport_id        UUID CONSTRAINT firstkey PRIMARY KEY,
+    name       varchar(40) NOT NULL
+);
+
+
+
+CREATE TABLE player_expectations (
+    sport_id        UUID CONSTRAINT firstkey PRIMARY KEY,
+    name       varchar(40) NOT NULL
+);
+
+
+CREATE TABLE player_games (
+    sport_id        UUID CONSTRAINT firstkey PRIMARY KEY,
+    name       varchar(40) NOT NULL
+);
+
+
+CREATE TABLE schedules (
+    sport_id        UUID CONSTRAINT firstkey PRIMARY KEY,
+    name       varchar(40) NOT NULL
+);
+
+
+CREATE TABLE weather_reports (
+    sport_id        UUID CONSTRAINT firstkey PRIMARY KEY,
+    name       varchar(40) NOT NULL
+);
